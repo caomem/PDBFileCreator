@@ -25,3 +25,4 @@ Manifest.toml
 
 # Windows directory control files
 **/desktop.ini
+10.pdb
