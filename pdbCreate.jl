@@ -31,23 +31,21 @@ function pdbCreate(inputFile::AbstractString, outputFile::AbstractString = "")
     end    
 end	
 
-# main function to run the solver and related problem
+# function for define the usage of pdbCreate main function
 """
 ``` 
-conformation(NMRdata,cs::ConformationSetup)
+usage()
 
 ```
-This is the main function in order to get the conformation of a molecule. To run this function, we need to setup a NMR file and then define some options using the ConformationSetup type. 
+This is a very simple function to inform the correct utilization of pdbCreate function
 
 ## Example 
 
 ```julia-repl
-julia> options = ConformationSetup(0.001,classicBP,true)
-
-julia> conformation(NMRdata,options)
+julia> pdbCreate("")
+usage: pdbCreate("<your_file_of_coordinates>", "<name_of_pdb_output_file>")
 ```
-as return a ConformationOutput type is provided.
 """
 function usage()
-    print("usage:")    
+    print("usage: pdbCreate(\"<your_file_of_coordinates>\", \"<name_of_pdb_output_file>\")\n")    
 end
