@@ -1,5 +1,5 @@
 # loading basic packages
-using DelimitedFiles
+using DelimitedFiles, Printf
 
 # main function to convert a file with three dimensions coordinates in a pdb type file
 """
@@ -25,9 +25,21 @@ function pdbCreate(inputFile::AbstractString, outputFile::AbstractString = "")
         return 0
     else
         realizations = readdlm(inputFile)
+        println(typeof(realizations))
         open(outputFile == "" ? basename(string(splitext(inputFile)[1],".pdb")) : outputFile, "w") do f
-            write(f, "test\n")
+            (m,n) = size(realizations)
+            write(f, "HEADER    LAVOR-INSTANCES                         28-MAR-20   0000              \n")
+            write(f, @sprintf "TITLE     THE THREE-DIMENSIONAL LAVOR INSTANCE OF LENGHT %9d             \n" m)
+            write(f, "MODEL        1                                                                  \n")
+            for i in 1:m
+                    s = @sprintf "this is a %s %15.1f" "test" 34.567;
+                    write(f, @sprintf "ATOM      1  H   MET A   1     %8.3f %8.3f %8.3f  1.00  0.00           H  \n" realizations[i,1] realizations[i,2] realizations[i,3])
+            end
+            write(f, "ENDMDL                                                                          \n")
+            write(f, @sprintf "MASTER        0    0    0    0    0    0    0 %5d    0    0    0              \n" m)
+            write(f, "END                                                                             \n")
         end
+        size(realizations)
     end    
 end	
 
