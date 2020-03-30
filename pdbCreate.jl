@@ -33,7 +33,7 @@ function pdbCreate(inputFile::AbstractString, outputFile::AbstractString = "")
             write(f, "MODEL        1                                                                  \n")
             for i in 1:m
                     s = @sprintf "this is a %s %15.1f" "test" 34.567;
-                    write(f, @sprintf "ATOM      1  H   MET A   1     %8.3f %8.3f %8.3f  1.00  0.00           H  \n" realizations[i,1] realizations[i,2] realizations[i,3])
+                    write(f, @sprintf "ATOM      1  H   MET A   1     %7.3f %7.3f %7.3f  1.00  0.00           H  \n" realizations[i,1] realizations[i,2] realizations[i,3])
             end
             write(f, "ENDMDL                                                                          \n")
             write(f, @sprintf "MASTER        0    0    0    0    0    0    0 %5d    0    0    0              \n" m)
