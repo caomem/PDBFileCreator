@@ -9,7 +9,7 @@ In the Julia REPL, browse to the folder containing `pdbCreate.jl` file and loadi
 julia> include("pdbCreate.jl")
 ```
 
-> Hint: Use the `cd()` function in the Julia REPL to browse into directories. You can know your current directory using the `pd()` function.
+> *Hint: Use the `cd()` function in the Julia REPL to browse into directories. You can know your current directory using the `pd()` function.*
 
 
 For generate a pdb file you will need a input file containing the three dimensional list of coordinates, following the format of the files in the examples folder.
