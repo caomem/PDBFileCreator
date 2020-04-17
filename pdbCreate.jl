@@ -1,5 +1,5 @@
 # loading basic packages
-using DelimitedFiles, Printf
+using DelimitedFiles, Printf, LinearAlgebra, Random
 
 # main function to convert a file with three dimensions coordinates in a pdb type file
 """
@@ -25,7 +25,7 @@ function pdbCreate(inputFileName::AbstractString, outputFileName::AbstractString
         return
     else
         realizations = readdlm(inputFileName)
-        open(outputFileName == "" ? basename(string(splitext(inputFileName)[1],".pdb")) : outputFileName, "w") do f
+        open(outputFileName == "" ? basename(splitext(inputFileName)[1]*".pdb") : outputFileName, "w") do f
             (m,n) = size(realizations)
             write(f, "HEADER    LAVOR-INSTANCES                         28-MAR-20   0000              \n")
             write(f, @sprintf "TITLE     THE THREE-DIMENSIONAL LAVOR INSTANCE OF LENGHT %9d             \n" m)
@@ -50,89 +50,63 @@ function randomInstanceCreate(n::Integer, outputFileName::AbstractString = "")
     θ=109.5*pi/180;
     r=1.526;
 
-    B1=I(4);
-    B2=I(4);
-    B3=I(4);
+    B1=Array(1.0*I(4));
+    B2=Array(1.0*I(4));
+    B3=Array(1.0*I(4));
 
-    B2(1,1)=-1;
-    B2(3,3)=-1;
-    B2(1,4)=-r;
+    B2[1,1]=-1;
+    B2[3,3]=-1;
+    B2[1,4]=-r;
 
-    B3(1,1)=-cos(teta);
-    B3(1,2)=-sin(teta);
-    B3(1,4)=-r*cos(teta);
-    B3(2,1)=sin(teta);
-    B3(2,2)=-cos(teta);
-    B3(2,4)=r*sin(teta);
+    B3[1,1]=-cos(θ);
+    B3[1,2]=-sin(θ);
+    B3[1,4]=-r*cos(θ);
+    B3[2,1]=sin(θ);
+    B3[2,2]=-cos(θ);
+    B3[2,4]=r*sin(θ);
 
     Orig=[0;0;0;1];
 
     B=B1*B2;
     v=B*Orig;
-    Pts(2,:)=(v(1:3))';
+    positions[2,:]=(v[1:3])';
     B=B*B3;
     v=B*Orig;
-    Pts(3,:)=(v(1:3))';
+    positions[3,:]=(v[1:3])';
     Omega=zeros(n-3,1);
-    clear B1 B2 B3 v
 
     for i=4:n
         n1aux=randperm(3);
-        n1=n1aux(1);
+        n1=n1aux[1];
         n2aux=randperm(31);
-        n2=n2aux(7);
+        n2=n2aux[7];
         
-        omega=(Tor1(n1)+Tor2(n2))*pi/180;
-        Omega(i-3)=omega;
+        omega=(ω[n1]+ωₑ[n2])*pi/180;
+        Omega[i-3]=omega;
         Bi=zeros(4,4);
 
-        Bi(1,1)=-cos(teta);
-        Bi(1,2)=-sin(teta);
-        Bi(1,4)=-r*cos(teta);
-        Bi(2,1)=sin(teta)*cos(omega);
-        Bi(2,2)=-cos(teta)*cos(omega);
-        Bi(2,3)=-sin(omega);
-        Bi(2,4)=r*sin(teta)*cos(omega);
-        Bi(3,1)=sin(teta)*sin(omega);
-        Bi(3,2)=-cos(teta)*sin(omega);
-        Bi(3,3)=cos(omega);
-        Bi(3,4)=r*sin(teta)*sin(omega);
-        Bi(4,4)=1;
+        Bi[1,1]=-cos(θ);
+        Bi[1,2]=-sin(θ);
+        Bi[1,4]=-r*cos(θ);
+        Bi[2,1]=sin(θ)*cos(omega);
+        Bi[2,2]=-cos(θ)*cos(omega);
+        Bi[2,3]=-sin(omega);
+        Bi[2,4]=r*sin(θ)*cos(omega);
+        Bi[3,1]=sin(θ)*sin(omega);
+        Bi[3,2]=-cos(θ)*sin(omega);
+        Bi[3,3]=cos(omega);
+        Bi[3,4]=r*sin(θ)*sin(omega);
+        Bi[4,4]=1;
         
         B=B*Bi;
-        clear Bi
         
         v=B*Orig;
-        Pts(i,:)=(v(1:3))';
-        clear v
+        positions[i,:]=(v[1:3])';
     end
 
-    clear B
-
-    Ares=zeros(n-1,2);
-    Ares(:,1)=(1:n-1)';
-    Ares(:,2)=(2:n)';
-
-    if nargin<2|strcmp(figura,'sim')|strcmp(figura,'Sim')|strcmp(figura,'s')|strcmp(figura,'S')
-        clf
-        scatter3(Pts(:,1),Pts(:,2),Pts(:,3));
-        hold
-        for i=1:n-1
-            line(Pts(Ares(i,:),1),Pts(Ares(i,:),2),Pts(Ares(i,:),3));
-        end
+    open((outputFileName == "") ? string(n)*".xyz" : outputFileName, "w") do io
+        writedlm(io, positions)
     end
-
-
-
-    D=zeros(n,n);
-    for i=1:n
-        for j=(i+1):n
-            D(i,j)=norm(Pts(i,:)-Pts(j,:));
-            D(j,i)=D(i,j);
-        end
-    end
-
-    writedlm(positions, outputFileName == "" ? string(n,".xyz") : outputFileName)
 end
 
 # function for define the usage of pdbCreate main function
