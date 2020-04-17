@@ -12,7 +12,13 @@ julia> include("pdbCreate.jl")
 > *Hint: Use the `cd()` function in the Julia REPL to browse into directories. You can know your current directory using the `pwd()` function.*
 
 
-For generate a pdb file you will need a input file containing the three dimensional list of coordinates. To do it, follow the format of the files in the examples folder.
+For generate a pdb file you will need a input file containing a three-dimensional coordinates list. To do it, you can use the `randomInstanceCreate()` function, that generates a random instance for you. Or, optionally, you can generate your own files following the format of the files in the examples folder.
+
+To use the `randomInstanceCreate()`, e.g.:
+
+```julia-repl
+julia> randomInstanceCreate(10, ".\\examples\\10.xyz")
+```
 
 Finaly, use the `pdbCreate()` method, with the relative path of the input file as parameter (and, opcionaly, the output file name), for create the pdb file.
 
