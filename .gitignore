@@ -28,3 +28,4 @@ Manifest.toml
 
 #ignore tests
 *.pdb
+*.xyz
