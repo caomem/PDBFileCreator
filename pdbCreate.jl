@@ -45,7 +45,7 @@ end
 # function to create a file with a random instance
 """
 ``` 
-randomInstanceCreate(n::Integer, outputFileName::AbstractString = "")
+randomInstanceCreate(n::Integer, outputFileName::AbstractString = ""; isLimited::Bool = true)
 
 ```
 This function generate a proteic instance with `n` atoms randomly from a physical model that is close to reality, based on the paper
@@ -57,13 +57,15 @@ This function generate a proteic instance with `n` atoms randomly from a physica
 
 and that instance is saved in a delimited file named, optionally, just like the outputFileName parameter. By default, the file has the name "`n`.xyz", where `n` is the size of instance.
 
+> Note: Since PDB files have a limited number of digits in their coordinates, it is of interest to limit the space of the molecule. For this, the `isLimited` parameter allows an internal loop to generate a limited protein. 
+
 ## Example 
 
 ```julia-repl
 julia> randomInstanceCreate(10)
 ```
 """
-function randomInstanceCreate(n::Integer, outputFileName::AbstractString = "")
+function randomInstanceCreate(n::Integer, outputFileName::AbstractString = ""; isLimited::Bool = true)
     positions = zeros(n, 3)
     ω=[60;180;300]
     ωₑ=(-15:15)'
@@ -97,32 +99,40 @@ function randomInstanceCreate(n::Integer, outputFileName::AbstractString = "")
     Omega=zeros(n-3,1);
 
     for i=4:n
-        n1aux=randperm(3);
-        n1=n1aux[1];
-        n2aux=randperm(31);
-        n2=n2aux[7];
-        
-        omega=(ω[n1]+ωₑ[n2])*pi/180;
-        Omega[i-3]=omega;
-        Bi=zeros(4,4);
+        while true
+            n1aux=randperm(3);
+            n1=n1aux[1];
+            n2aux=randperm(31);
+            n2=n2aux[7];
+            
+            omega=(ω[n1]+ωₑ[n2])*pi/180;
+            Omega[i-3]=omega;
+            Bi=zeros(4,4);
 
-        Bi[1,1]=-cos(θ);
-        Bi[1,2]=-sin(θ);
-        Bi[1,4]=-r*cos(θ);
-        Bi[2,1]=sin(θ)*cos(omega);
-        Bi[2,2]=-cos(θ)*cos(omega);
-        Bi[2,3]=-sin(omega);
-        Bi[2,4]=r*sin(θ)*cos(omega);
-        Bi[3,1]=sin(θ)*sin(omega);
-        Bi[3,2]=-cos(θ)*sin(omega);
-        Bi[3,3]=cos(omega);
-        Bi[3,4]=r*sin(θ)*sin(omega);
-        Bi[4,4]=1;
-        
-        B=B*Bi;
-        
-        v=B*Orig;
-        positions[i,:]=(v[1:3])';
+            Bi[1,1]=-cos(θ);
+            Bi[1,2]=-sin(θ);
+            Bi[1,4]=-r*cos(θ);
+            Bi[2,1]=sin(θ)*cos(omega);
+            Bi[2,2]=-cos(θ)*cos(omega);
+            Bi[2,3]=-sin(omega);
+            Bi[2,4]=r*sin(θ)*cos(omega);
+            Bi[3,1]=sin(θ)*sin(omega);
+            Bi[3,2]=-cos(θ)*sin(omega);
+            Bi[3,3]=cos(omega);
+            Bi[3,4]=r*sin(θ)*sin(omega);
+            Bi[4,4]=1;
+            
+            Btemp=B*Bi;
+            v=Btemp*Orig;
+  
+            if (isLimited && (abs(v[1]) >= 99 || abs(v[2]) >= 99 || abs(v[3]) >= 99))
+                continue
+            end        
+            B = Btemp
+  
+            positions[i,:]=(v[1:3])';
+            break
+        end
     end
 
     open((outputFileName == "") ? string(n)*".xyz" : outputFileName, "w") do io
