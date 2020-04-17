@@ -4,7 +4,7 @@ using DelimitedFiles, Printf, LinearAlgebra, Random
 # main function to convert a file with three dimensions coordinates in a pdb type file
 """
 ``` 
-pdbCreate(inputFile::AbstractString, outputFile::AbstractString)
+pdbCreate(inputFile::AbstractString, outputFile::AbstractString = "")
 
 ```
 This is the main function in the program. To run this function, you need a file with a matrix (n, 3) of n real coordinates [x, y, z] of each atom.
@@ -42,6 +42,27 @@ function pdbCreate(inputFileName::AbstractString, outputFileName::AbstractString
     end
 end	
 
+# function to create a file with a random instance
+"""
+``` 
+randomInstanceCreate(n::Integer, outputFileName::AbstractString = "")
+
+```
+This function generate a proteic instance with `n` atoms randomly from a physical model that is close to reality, based on the paper
+    
+    LAVOR, C. . On generating instances for the molecular distance geometry 
+    problem. In: Leo Liberti; Nelson Maculan. (Org.). Global Optimization: from
+    Theory to Implementation. Global Optimization: from Theory to 
+    Implementation. New York: Springer, 2006, v. 84, p. 405-414. 
+
+and that instance is saved in a delimited file named, optionally, just like the outputFileName parameter. By default, the file has the name "`n`.xyz", where `n` is the size of instance.
+
+## Example 
+
+```julia-repl
+julia> randomInstanceCreate(10)
+```
+"""
 function randomInstanceCreate(n::Integer, outputFileName::AbstractString = "")
     positions = zeros(n, 3)
     ω=[60;180;300]
